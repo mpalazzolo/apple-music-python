@@ -11,6 +11,6 @@ setup(
     description='A python wrapper for the Apple Music API',
     install_requires=[
         'requests>=2.18.4',
-        'jwt>=0.5.4',
+        'pyjwt>=1.6.4',
     ],
 )

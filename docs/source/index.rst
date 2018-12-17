@@ -68,7 +68,7 @@ Authors
 
 License
 ^^^^^^^
-https://github.com/mpalazzolo/applemusicpython/LICENSE.txt
+https://github.com/mpalazzolo/apple-music-python/LICENSE.txt
 
 Indices and tables
 ==================
