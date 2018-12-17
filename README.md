@@ -8,6 +8,9 @@ NOTE: This does not support library resources.
 
 ## Getting Started
 
+### Documentation
+Find full documentation of the project here:
+https://apple-music-python.readthedocs.io
 
 ### Prerequisites
 
