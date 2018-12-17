@@ -50,7 +50,8 @@ for item in results['results']['albums']['data']:
 
 ## Versioning
 
-v1.0.0 - Initial Release - 12/15/2018
+- v1.0.0 - Initial Release - 12/15/2018
+- v1.0.1 - Updated package info on PyPI - 12/16/2018
 
 ## Authors
 
