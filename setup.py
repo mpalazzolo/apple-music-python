@@ -10,7 +10,7 @@ setup(
     author_email='mattpalazzolo@gmail.com',
     description='A python wrapper for the Apple Music API',
     install_requires=[
-        'requests>=2.18.4',
+        'requests>=2.20.1',
         'pyjwt>=1.6.4',
     ],
 )
