@@ -2,7 +2,7 @@
 
 A python wrapper for the Apple Music API. 
 
-See the [Apple Music API documentation](https://developer.apple.com/documentation/applemusicapi/about_the_apple_music_api) for additional info:
+See the [Apple Music API documentation](https://developer.apple.com/documentation/applemusicapi/about_the_apple_music_api) for additional info.
 
 NOTE: This does not support library resources.
 
