@@ -20,6 +20,7 @@ You must have an Apple Developer Account and a MusicKit API Key. See instruction
 
 - [Requests](https://github.com/requests/requests) 
 - [PyJWT](https://github.com/jpadilla/pyjwt)
+- [Cryptography](https://github.com/pyca/cryptography)
 
 ### Installing
 
@@ -52,6 +53,7 @@ for item in results['results']['albums']['data']:
 
 - v1.0.0 - Initial Release - 12/15/2018
 - v1.0.1 - Updated package info on PyPI - 12/16/2018
+- v1.0.2 - Added Windows search support - 1/21/2019
 
 ## Authors
 

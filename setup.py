@@ -17,5 +17,6 @@ setup(
     install_requires=[
         'requests>=2.20.1',
         'pyjwt>=1.6.4',
+        'cryptography>=2.4.2'
     ],
 )

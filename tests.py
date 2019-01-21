@@ -193,6 +193,10 @@ class TestApple(unittest.TestCase):
         results = am.search(self.search_term, types=['songs'])
         self.assertTrue(results['results']['songs']['data'][0]['attributes']['name'] == 'Nice For What')
 
+    def test_search_windows(self):
+        results = am.search(self.search_term, types=['songs'], os='windows')
+        self.assertTrue(results['results']['songs']['data'][0]['attributes']['name'] == 'Nice For What')
+
     def test_charts(self):
         results = am.charts(types=['songs'], genre=self.pop)
         self.assertTrue(results['results']['songs'][0]['name'] == 'Top Songs')
