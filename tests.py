@@ -45,7 +45,7 @@ class TestApple(unittest.TestCase):
 
     def test_album(self):
         results = am.album(self.born_to_run)
-        self.assertTrue(results['data'][0]['attributes']['name'] == 'Born to Run')
+        self.assertTrue(results['data'][0]['attributes']['name'] == 'Born To Run')
 
     def test_album_relationship(self):
         results = am.album_relationship(self.born_to_run, 'artists')

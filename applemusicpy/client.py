@@ -112,9 +112,8 @@ class AppleMusic:
                     if retries < 0:
                         raise
                     else:
-                        sleep_seconds = int(e.headers.get('Retry-After', delay))
-                        print('retrying ...' + str(sleep_seconds) + ' secs')
-                        time.sleep(sleep_seconds + 1)
+                        print('retrying ...' + str(delay) + ' secs')
+                        time.sleep(delay + 1)
                         delay += 1
                 else:
                     raise

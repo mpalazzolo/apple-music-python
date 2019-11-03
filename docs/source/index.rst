@@ -63,6 +63,7 @@ Versioning
 v1.0.0 - Initial Release - 12/15/2018
 v1.0.1 - Updated package info on PyPI - 12/16/2018
 v1.0.2 - Added Windows search support - 1/21/2019
+v1.0.3 - Fixed error handling of HTTPError - 11/3/2019
 
 Authors
 ^^^^^^^
