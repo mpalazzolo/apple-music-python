@@ -56,7 +56,8 @@ class AppleMusic:
             'exp': int((datetime.now() + timedelta(hours=session_length)).timestamp())  # expiration time
         }
         token = jwt.encode(payload, self._secret_key, algorithm=self._alg, headers=headers)
-        self.token_str = token.decode()
+        self.token_str = token if type(token) is not bytes else token.decode()
+
 
     def _auth_headers(self):
         """
