@@ -187,7 +187,7 @@ class TestApple(unittest.TestCase):
 
     def test_storefronts_all(self):
         results = am.storefronts_all()
-        self.assertTrue(results['data'][0]['id'] == 'ai')
+        self.assertTrue(results['data'][0]['id'] == 'dz')
 
     def test_search(self):
         results = am.search(self.search_term, types=['songs'])
