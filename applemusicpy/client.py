@@ -30,6 +30,8 @@ class AppleMusic:
         self._team_id = team_id
         self._alg = 'ES256'  # encryption algo that Apple requires
         self.token_str = ""  # encrypted api token
+        self.session_length = session_length
+        self.token_valid_until = None
         self.generate_token(session_length)
         self.root = 'https://api.music.apple.com/v1/'
         self.max_retries = max_retries
@@ -39,6 +41,9 @@ class AppleMusic:
         else:
             self._session = requests.api  # individual calls, slower
 
+    def token_is_valid(self):
+        return datetime.now() <= self.token_valid_until if self.token_valid_until is not None else False
+
     def generate_token(self, session_length):
         """
         Generate encrypted token to be used by in API requests.
@@ -46,6 +51,7 @@ class AppleMusic:
 
         :param session_length: Length Apple Music token is valid, in hours
         """
+        token_exp_time = datetime.now() + timedelta(hours=session_length)
         headers = {
             'alg': self._alg,
             'kid': self._key_id
@@ -53,8 +59,9 @@ class AppleMusic:
         payload = {
             'iss': self._team_id,  # issuer
             'iat': int(datetime.now().timestamp()),  # issued at
-            'exp': int((datetime.now() + timedelta(hours=session_length)).timestamp())  # expiration time
+            'exp': int(token_exp_time.timestamp())  # expiration time
         }
+        self.token_valid_until = token_exp_time
         token = jwt.encode(payload, self._secret_key, algorithm=self._alg, headers=headers)
         self.token_str = token if type(token) is not bytes else token.decode()
 
@@ -82,6 +89,10 @@ class AppleMusic:
         """
         if not url.startswith('http'):
             url = self.root + url
+
+        if not self.token_is_valid():
+            self.generate_token(self.session_length)
+
         headers = self._auth_headers()
         headers['Content-Type'] = 'application/json'
 
