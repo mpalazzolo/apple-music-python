@@ -4,7 +4,7 @@ Babel==2.6.0
 certifi==2018.11.29
 cffi==1.11.5
 chardet==3.0.4
-cryptography==3.2
+cryptography==3.3.2
 docutils==0.14
 idna==2.8
 imagesize==1.1.0
