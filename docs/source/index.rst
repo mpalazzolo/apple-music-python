@@ -65,6 +65,7 @@ v1.0.1 - Updated package info on PyPI - 12/16/2018
 v1.0.2 - Added Windows search support - 01/21/2019
 v1.0.3 - Fixed error handling of HTTPError - 11/03/2019
 v1.0.4 - Fixed error with reading token - 01/24/2021
+v1.0.5 - Refresh token before request if token is expired - 05/09/2021
 
 Authors
 ^^^^^^^
