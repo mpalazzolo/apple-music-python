@@ -768,3 +768,11 @@ class AppleMusic:
         else:
             type_str = None
         return self._get(url, types=type_str, chart=chart, l=l, genre=genre, limit=limit, offset=offset)
+    def library(self):
+        """
+        Get Apple Music User Library data
+
+        :return: library data in JSON format
+        """
+        url = self.root + 'me/library/songs'
+        return self._get(url)
