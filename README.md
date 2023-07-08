@@ -4,8 +4,6 @@ A python wrapper for the Apple Music API.
 
 See the [Apple Music API documentation](https://developer.apple.com/documentation/applemusicapi/about_the_apple_music_api) for additional info.
 
-NOTE: This does not support library resources.
-
 ## Getting Started
 
 ### Documentation
@@ -61,6 +59,7 @@ for item in results['results']['albums']['data']:
 ## Authors
 
 * **Matt Palazzolo** - [GitHub Profile](https://github.com/mpalazzolo)
+* **Jonathan Jacobson** - [GitHub Profile](https://github.com/j-jacobson)
 
 ## License
 
