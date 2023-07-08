@@ -194,14 +194,6 @@ class AppleMusic:
     def _put(self, url, **kwargs):
         return self._call('PUT', url, kwargs)
 
-    def _insert_track(self, playlist_id, track_id):
-
-        url = self.root + '/me/library/playlists/%s/tracks' % playlist_id
-        data = {'data': [{'id': track_id, 'type': 'songs'}]}
-
-        return self._post_call(url, json.dumps(data))
-            
-
     def _get_resource(self, resource_id, resource_type, storefront='us', **kwargs):
         """
         Get an Apple Music catalog resource (song, artist, album, etc.)
@@ -822,11 +814,98 @@ class AppleMusic:
         else:
             type_str = None
         return self._get(url, types=type_str, chart=chart, l=l, genre=genre, limit=limit, offset=offset)
-    def library(self):
+    
+    # User Library Functions
+    def current_user_saved_tracks(self, limit, offset):
         """
-        Get Apple Music User Library data
-
-        :return: library data in JSON format
+        Retrieve liked songs from the current user's Apple Music library.
+        :param limit: The maximum number of tracks to retrieve.
+        :param offset: The offset for pagination.
+        :return: Liked songs data in JSON format.
         """
-        url = self.root + 'me/library/songs'
+        url = self.root + f'me/library/songs?limit={limit}&offset={offset}'
         return self._get(url)
+
+    def current_user_playlists(self):
+        """
+        Retrieve all playlists of the current user in Apple Music.
+        :return: Playlists data in JSON format.
+        """
+        url = self.root + 'me/library/playlists'
+        return self._get(url)
+
+    def current_user_saved_albums(self):
+        """
+        Retrieve saved albums of the current user in Apple Music.
+        :return: Saved albums data in JSON format.
+        """
+        url = self.root + 'me/library/albums'
+        return self._get(url)
+    
+    def current_user_followed_artists(self):
+        """
+        Retrieve artists followed by the current user in Apple Music.
+        :return: Followed artists data in JSON format.
+        """
+        url = self.root + 'me/library/artists'
+        return self._get(url)
+    
+    def user_playlist_create(self, playlist_name):
+        """
+        Create a new playlist in Apple Music for the current user.
+        :param playlist_name: The name of the new playlist.
+        :return: The response data indicating the success of the operation.
+        """
+        url = self.root + 'me/library/playlists'
+
+        # Create the payload with the necessary data
+        payload = {
+            'name': playlist_name
+        }
+
+        return self._post_call(url, json.dumps(payload))
+
+    
+    def user_playlist_add_track(self, playlist_id, track_id):
+        """
+        Create a new playlist in Apple Music for the current user.
+        :param playlist_name: The name of the new playlist.
+        :return: The response data indicating the success of the operation.
+        """
+        url = self.root + f'me/library/playlists/{playlist_id}/tracks'
+
+        # Create the payload with the necessary data
+        payload = {
+            'id': track_id,
+            'type': "library-songs"
+        }
+
+        return self._post_call(url, json.dumps(payload))
+    
+    def current_user_saved_albums_add(self, album_id):
+        """
+        Add a specific album to the current user's saved albums.
+        :param album_id: The ID of the album to be added.
+        :return: The response data indicating the success of the operation.
+        """
+        url = self.root + f'me/library/?ids[albums]={album_id}'
+        return self._post_call(url, "")
+    
+    def current_user_saved_tracks_add(self, song_id):
+        """
+        Add a specific song to the current user's saved tracks.
+        :param song_id: The ID of the song to be added.
+        :return: The response data indicating the success of the operation.
+        """
+        url = self.root + f'me/library/?ids[songs]{song_id}'
+        return self._post_call(url, "")
+     
+    def current_user_followed_artists_add(self, artist_id):
+        """
+        NOTE: This one might not work, it is not actually in the documentation.
+        Add a specific artist to the current user's followed artists.
+        :param artist_id: The ID of the artist to be added.
+        :return: The response data indicating the success of the operation.
+        """
+        url = self.root + f'me/library/?ids[artists]{artist_id}'
+        return self._post_call(url, "")
