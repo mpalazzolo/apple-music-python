@@ -791,8 +791,6 @@ class AppleMusic:
         else:
             return None
 
-
-
     # Charts
     def charts(self, storefront='us', chart=None, types=None, l=None, genre=None, limit=None, offset=None):
         """
@@ -816,7 +814,7 @@ class AppleMusic:
         return self._get(url, types=type_str, chart=chart, l=l, genre=genre, limit=limit, offset=offset)
     
     # User Library Functions
-    def current_user_saved_tracks(self, limit, offset):
+    def current_user_saved_tracks(self, limit=10, offset=0):
         """
         Retrieve liked songs from the current user's Apple Music library.
         :param limit: The maximum number of tracks to retrieve.
@@ -867,7 +865,7 @@ class AppleMusic:
         return self._post_call(url, json.dumps(payload))
 
     
-    def user_playlist_add_track(self, playlist_id, track_id):
+    def user_playlist_add_track(self, playlist_id=None, track_id=None):
         """
         Create a new playlist in Apple Music for the current user.
         :param playlist_name: The name of the new playlist.
@@ -883,7 +881,7 @@ class AppleMusic:
 
         return self._post_call(url, json.dumps(payload))
     
-    def current_user_saved_albums_add(self, album_id):
+    def current_user_saved_albums_add(self, album_id=None):
         """
         Add a specific album to the current user's saved albums.
         :param album_id: The ID of the album to be added.
@@ -901,7 +899,7 @@ class AppleMusic:
         url = self.root + f'me/library/?ids[songs]{song_id}'
         return self._post_call(url, "")
      
-    def current_user_followed_artists_add(self, artist_id):
+    def current_user_followed_artists_add(self, artist_id=None):
         """
         NOTE: This one might not work, it is not actually in the documentation.
         Add a specific artist to the current user's followed artists.
