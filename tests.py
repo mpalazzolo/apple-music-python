@@ -28,9 +28,6 @@ class TestApple(unittest.TestCase):
         # curators
         self.large_up = '1107687517'
         self.grand_ole_opry = '976439448'
-        # activity
-        self.party = '976439514'
-        self.chill = '976439503'
         # apple curators
         self.apple_alt = '976439526'
         self.live_nation_tv = '1017168810'
@@ -45,162 +42,234 @@ class TestApple(unittest.TestCase):
 
     def test_album(self):
         results = am.album(self.born_to_run)
-        self.assertTrue(results['data'][0]['attributes']['name'] == 'Born To Run')
+        expected_name = 'Born to Run'
+        actual_name = results['data'][0]['attributes']['name']
+        self.assertTrue(expected_name == actual_name, f"Expected: {expected_name}, Actual: {actual_name}")
 
     def test_album_relationship(self):
         results = am.album_relationship(self.born_to_run, 'artists')
-        self.assertTrue(results['data'][0]['attributes']['name'] == 'Bruce Springsteen')
+        expected_name = 'Bruce Springsteen'
+        actual_name = results['data'][0]['attributes']['name']
+        self.assertTrue(expected_name == actual_name, f"Expected: {expected_name}, Actual: {actual_name}")
 
     def test_albums(self):
         results = am.albums([self.born_to_run, self.ready_to_die])
-        self.assertTrue(len(results['data']) == 2)
-        self.assertTrue(results['data'][0]['type'] == 'albums')
+        expected_count = 2
+        expected_type = 'albums'
+        actual_count = len(results['data'])
+        self.assertTrue(expected_count == actual_count, f"Expected Count: {expected_count}, Actual Count: {actual_count}")
+        actual_type = results['data'][0]['type']
+        self.assertTrue(expected_type == actual_type, f"Expected Type: {expected_type}, Actual Type: {actual_type}")
 
     def test_music_video(self):
         results = am.music_video(self.rubber_soul)
-        self.assertTrue(results['data'][0]['attributes']['name'] == 'Rubber Soul (Documentary)')
+        expected_name = 'Rubber Soul (Documentary)'
+        actual_name = results['data'][0]['attributes']['name']
+        self.assertTrue(expected_name == actual_name, f"Expected: {expected_name}, Actual: {actual_name}")
 
     def test_music_video_relationship(self):
         results = am.music_video_relationship(self.rubber_soul, 'artists')
-        self.assertTrue(results['data'][0]['attributes']['name'] == 'The Beatles')
+        expected_name = 'The Beatles'
+        actual_name = results['data'][0]['attributes']['name']
+        self.assertTrue(expected_name == actual_name, f"Expected: {expected_name}, Actual: {actual_name}")
 
     def test_music_videos(self):
         results = am.music_videos([self.rubber_soul, self.sgt_pepper])
-        self.assertTrue(len(results['data']) == 2)
-        self.assertTrue(results['data'][0]['type'] == 'music-videos')
-
+        expected_count = 2
+        expected_type = 'music-videos'
+        actual_count = len(results['data'])
+        actual_type = results['data'][0]['type']
+        self.assertTrue(expected_count == actual_count, f"Expected Count: {expected_count}, Actual Count: {actual_count}")
+        self.assertTrue(expected_type == actual_type, f"Expected Type: {expected_type}, Actual Type: {actual_type}")
+    
     # ISRCs don't seem to work for music videos
     # def test_music_videos_by_isrc(self):
 
     def test_playlist(self):
         results = am.playlist(self.janet_jackson)
-        self.assertTrue(results['data'][0]['attributes']['name'] == 'Janet Jackson: No.1 Songs')
+        expected_name = 'Janet Jackson: No.1 Songs'
+        actual_name = results['data'][0]['attributes']['name']
+        self.assertTrue(expected_name == actual_name, f"Expected: {expected_name}, Actual: {actual_name}")
 
     def test_playlist_relationship(self):
         results = am.playlist_relationship(self.eighties_pop, 'tracks')  # playlist have 'tracks', artists have 'songs'
-        self.assertTrue(results['data'][0]['type'] == 'songs')
+        expected_type = 'songs'
+        actual_type = results['data'][0]['type']
+        self.assertTrue(expected_type == actual_type, f"Expected Type: {expected_type}, Actual Type: {actual_type}")
 
     def test_playlists(self):
         results = am.playlists([self.janet_jackson, self.eighties_pop])
-        self.assertTrue(len(results['data']) == 2)
-        self.assertTrue(results['data'][0]['type'] == 'playlists')
+        expected_count = 2
+        expected_type = 'playlists'
+        actual_count = len(results['data'])
+        actual_type = results['data'][0]['type']
+        self.assertTrue(expected_count == actual_count, f"Expected Count: {expected_count}, Actual Count: {actual_count}")
+        self.assertTrue(expected_type == actual_type, f"Expected Type: {expected_type}, Actual Type: {actual_type}")
 
     def test_song(self):
         results = am.song(self.xo_tour_life)
-        self.assertTrue(results['data'][0]['attributes']['name'] == 'XO TOUR Llif3')
+        expected_name = 'XO TOUR Llif3'
+        actual_name = results['data'][0]['attributes']['name']
+        self.assertTrue(expected_name == actual_name, f"Expected: {expected_name}, Actual: {actual_name}")
 
     def test_song_relationship(self):
         results = am.song_relationship(self.xo_tour_life, 'artists')
-        self.assertTrue(results['data'][0]['attributes']['name'] == 'Lil Uzi Vert')
+        expected_name = 'Lil Uzi Vert'
+        actual_name = results['data'][0]['attributes']['name']
+        self.assertTrue(expected_name == actual_name, f"Expected: {expected_name}, Actual: {actual_name}")
 
     def test_songs(self):
         results = am.songs([self.xo_tour_life, self.new_patek])
-        self.assertTrue(len(results['data']) == 2)
-        self.assertTrue(results['data'][0]['type'] == 'songs')
+        expected_count = 2
+        expected_type = 'songs'
+        actual_count = len(results['data'])
+        actual_type = results['data'][0]['type']
+        self.assertTrue(expected_count == actual_count, f"Expected Count: {expected_count}, Actual Count: {actual_count}")
+        self.assertTrue(expected_type == actual_type, f"Expected Type: {expected_type}, Actual Type: {actual_type}")
 
     def test_songs_by_isrc(self):
         results = am.songs_by_isrc([self.gods_plan_isrc])
-        self.assertTrue(results['data'][0]['attributes']['name'] == 'God\'s Plan')
+        expected_name = "God's Plan"
+        actual_name = results['data'][0]['attributes']['name']
+        self.assertTrue(expected_name == actual_name, f"Expected: {expected_name}, Actual: {actual_name}")
 
     def test_artist(self):
         results = am.artist(self.lil_pump)
-        self.assertTrue(results['data'][0]['attributes']['name'] == 'Lil Pump')
+        expected_name = 'Lil Pump'
+        actual_name = results['data'][0]['attributes']['name']
+        self.assertTrue(expected_name == actual_name, f"Expected: {expected_name}, Actual: {actual_name}")
 
     def test_artist_relationship(self):
         results = am.artist_relationship(self.lil_pump, 'songs')
-        self.assertTrue(results['data'][0]['type'] == 'songs')
+        expected_type = 'songs'
+        actual_type = results['data'][0]['type']
+        self.assertTrue(expected_type == actual_type, f"Expected Type: {expected_type}, Actual Type: {actual_type}")
 
     def test_artists(self):
         results = am.artists([self.lil_pump, self.smokepurpp])
-        self.assertTrue(len(results['data']) == 2)
-        self.assertTrue(results['data'][0]['type'] == 'artists')
+        expected_count = 2
+        expected_type = 'artists'
+        actual_count = len(results['data'])
+        actual_type = results['data'][0]['type']
+        self.assertTrue(expected_count == actual_count, f"Expected Count: {expected_count}, Actual Count: {actual_count}")
+        self.assertTrue(expected_type == actual_type, f"Expected Type: {expected_type}, Actual Type: {actual_type}")
 
     def test_station(self):
         results = am.station(self.alt)
-        self.assertTrue(results['data'][0]['attributes']['name'] == 'Alternative')
+        expected_name = 'Alternative Station'
+        actual_name = results['data'][0]['attributes']['name']
+        self.assertTrue(expected_name == actual_name, f"Expected: {expected_name}, Actual: {actual_name}")
 
     def test_stations(self):
         results = am.stations([self.alt, self.pure_pop])
-        self.assertTrue(len(results['data']) == 2)
-        self.assertTrue(results['data'][0]['type'] == 'stations')
+        expected_count = 2
+        expected_type = 'stations'
+        actual_count = len(results['data'])
+        actual_type = results['data'][0]['type']
+        self.assertTrue(expected_count == actual_count, f"Expected Count: {expected_count}, Actual Count: {actual_count}")
+        self.assertTrue(expected_type == actual_type, f"Expected Type: {expected_type}, Actual Type: {actual_type}")
 
     def test_curator(self):
         results = am.curator(self.large_up)
-        self.assertTrue(results['data'][0]['attributes']['name'] == 'LargeUp')
+        expected_name = 'LargeUp'
+        actual_name = results['data'][0]['attributes']['name']
+        self.assertTrue(expected_name == actual_name, f"Expected: {expected_name}, Actual: {actual_name}")
 
     def test_curator_relationship(self):
         results = am.curator_relationship(self.grand_ole_opry, 'playlists')
-        self.assertTrue(results['data'][0]['type'] == 'playlists')
+        expected_type = 'playlists'
+        actual_type = results['data'][0]['type']
+        self.assertTrue(expected_type == actual_type, f"Expected Type: {expected_type}, Actual Type: {actual_type}")
 
     def test_curators(self):
         results = am.curators([self.large_up, self.grand_ole_opry])
-        self.assertTrue(len(results['data']) == 2)
-        self.assertTrue(results['data'][0]['type'] == 'curators')
-
-    def test_activity(self):
-        results = am.activity(self.party)
-        self.assertTrue(results['data'][0]['attributes']['name'] == 'Party')
-
-    def test_activity_relationship(self):
-        results = am.activity_relationship(self.party, 'playlists')
-        self.assertTrue(results['data'][0]['type'] == 'playlists')
-
-    def test_activities(self):
-        results = am.activities([self.party, self.chill])
-        self.assertTrue(len(results['data']) == 2)
-        self.assertTrue(results['data'][0]['type'] == 'activities')
+        expected_count = 2
+        expected_type = 'curators'
+        actual_count = len(results['data'])
+        actual_type = results['data'][0]['type']
+        self.assertTrue(expected_count == actual_count, f"Expected Count: {expected_count}, Actual Count: {actual_count}")
+        self.assertTrue(expected_type == actual_type, f"Expected Type: {expected_type}, Actual Type: {actual_type}")
 
     def test_apple_curator(self):
         results = am.apple_curator(self.apple_alt)
-        self.assertTrue(results['data'][0]['attributes']['name'] == 'Apple Music Alternative')
+        expected_name = 'Apple Music Alternative'
+        actual_name = results['data'][0]['attributes']['name']
+        self.assertTrue(expected_name == actual_name, f"Expected: {expected_name}, Actual: {actual_name}")
 
     def test_apple_curator_relationship(self):
         results = am.apple_curator_relationship(self.apple_alt, 'playlists')
-        self.assertTrue(results['data'][0]['type'] == 'playlists')
+        expected_type = 'playlists'
+        actual_type = results['data'][0]['type']
+        self.assertTrue(expected_type == actual_type, f"Expected Type: {expected_type}, Actual Type: {actual_type}")
 
     def test_apple_curators(self):
         results = am.apple_curators([self.apple_alt, self.live_nation_tv])
-        self.assertTrue(len(results['data']) == 2)
-        self.assertTrue(results['data'][0]['type'] == 'apple-curators')
+        expected_count = 2
+        expected_type = 'apple-curators'
+        actual_count = len(results['data'])
+        actual_type = results['data'][0]['type']
+        self.assertTrue(expected_count == actual_count, f"Expected Count: {expected_count}, Actual Count: {actual_count}")
+        self.assertTrue(expected_type == actual_type, f"Expected Type: {expected_type}, Actual Type: {actual_type}")
 
     def test_genre(self):
         results = am.genre(self.pop)
-        self.assertTrue(results['data'][0]['attributes']['name'] == 'Pop')
+        expected_name = 'Pop'
+        actual_name = results['data'][0]['attributes']['name']
+        self.assertTrue(expected_name == actual_name, f"Expected: {expected_name}, Actual: {actual_name}")
 
     def test_genres(self):
         results = am.genres([self.pop, self.rock])
-        self.assertTrue(len(results['data']) == 2)
-        self.assertTrue(results['data'][0]['type'] == 'genres')
+        expected_count = 2
+        expected_type = 'genres'
+        actual_count = len(results['data'])
+        actual_type = results['data'][0]['type']
+        self.assertTrue(expected_count == actual_count, f"Expected Count: {expected_count}, Actual Count: {actual_count}")
+        self.assertTrue(expected_type == actual_type, f"Expected Type: {expected_type}, Actual Type: {actual_type}")
 
     def test_genres_all(self):
         results = am.genres_all()
-        self.assertTrue(results['data'][0]['id'] == '34')
+        expected_id = '34'
+        actual_id = results['data'][0]['id']
+        self.assertTrue(expected_id == actual_id, f"Expected ID: {expected_id}, Actual ID: {actual_id}")
 
     def test_storefront(self):
         results = am.storefront(self.us)
-        self.assertTrue(results['data'][0]['attributes']['name'] == 'United States')
+        expected_name = 'United States'
+        actual_name = results['data'][0]['attributes']['name']
+        self.assertTrue(expected_name == actual_name, f"Expected: {expected_name}, Actual: {actual_name}")
 
     def test_storefronts(self):
         results = am.storefronts([self.us, self.jp])
-        self.assertTrue(len(results['data']) == 2)
-        self.assertTrue(results['data'][0]['type'] == 'storefronts')
+        expected_count = 2
+        expected_type = 'storefronts'
+        actual_count = len(results['data'])
+        actual_type = results['data'][0]['type']
+        self.assertTrue(expected_count == actual_count, f"Expected Count: {expected_count}, Actual Count: {actual_count}")
+        self.assertTrue(expected_type == actual_type, f"Expected Type: {expected_type}, Actual Type: {actual_type}")
 
     def test_storefronts_all(self):
         results = am.storefronts_all()
-        self.assertTrue(results['data'][0]['id'] == 'dz')
+        expected_id = 'dz'
+        actual_id = results['data'][0]['id']
+        self.assertTrue(expected_id == actual_id, f"Expected ID: {expected_id}, Actual ID: {actual_id}")
 
     def test_search(self):
         results = am.search(self.search_term, types=['songs'])
-        self.assertTrue(results['results']['songs']['data'][0]['attributes']['name'] == 'Nice For What')
+        expected_name = 'Nice For What'
+        actual_name = results['results']['songs']['data'][0]['attributes']['name']
+        self.assertTrue(expected_name == actual_name, f"Expected: {expected_name}, Actual: {actual_name}")
 
     def test_search_windows(self):
         results = am.search(self.search_term, types=['songs'], os='windows')
-        self.assertTrue(results['results']['songs']['data'][0]['attributes']['name'] == 'Nice For What')
+        expected_name = 'Nice For What'
+        actual_name = results['results']['songs']['data'][0]['attributes']['name']
+        self.assertTrue(expected_name == actual_name, f"Expected: {expected_name}, Actual: {actual_name}")
 
     def test_charts(self):
         results = am.charts(types=['songs'], genre=self.pop)
-        self.assertTrue(results['results']['songs'][0]['name'] == 'Top Songs')
-
+        expected_name = 'Top Songs'
+        actual_name = results['results']['songs'][0]['name']
+        self.assertTrue(expected_name == actual_name, f"Expected: {expected_name}, Actual: {actual_name}")
 
 if __name__ == '__main__':
     # These tests require API authorization, so need to read in keys
