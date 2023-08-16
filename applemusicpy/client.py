@@ -850,7 +850,7 @@ class AppleMusic:
         url = self.root + 'me/library/artists'
         return self._get(url)
     
-    def user_playlist_create(self, playlist_name):
+    def user_playlist_create(self, playlist_name, tracks):
         """
         Create a new playlist in Apple Music for the current user.
         :param playlist_name: The name of the new playlist.
@@ -860,7 +860,8 @@ class AppleMusic:
 
         # Create the payload with the necessary data
         payload = {
-            'name': playlist_name
+            'name': playlist_name,
+            'tracks' : tracks
         }
 
         return self._post_call(url, json.dumps(payload))
