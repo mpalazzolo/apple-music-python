@@ -315,7 +315,7 @@ class BaseTests(unittest.TestCase):
         results = am.search(self.search_term, types=['songs'])
         expected_name = 'Nice For What'
         actual_name = results['results']['songs']['data'][0]['attributes']['name']
-        self.assertTrue(expected_name == actual_name, f"Expected: {expected_name}, Actual: {actual_name}, Actual Results: {results}")
+        self.assertTrue(expected_name == actual_name, f"Expected: {expected_name}, Actual: {actual_name}")
 
     def test_search_windows(self):
         results = am.search(self.search_term, types=['songs'], os='windows')
