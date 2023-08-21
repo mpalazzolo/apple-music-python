@@ -66,7 +66,6 @@ class AppleMusic:
         token = jwt.encode(payload, self._secret_key, algorithm=self._alg, headers=headers)
         self.token_str = token if type(token) is not bytes else token.decode()
 
-
     def _auth_headers(self):
         """
         Get header for API request
@@ -138,17 +137,20 @@ class AppleMusic:
         if not self.token_is_valid():
             self.generate_token(self.session_length)
 
-
         headers = self._post_auth_headers()
+
+        headers['Content-Type'] = 'application/json'
 
         r = self._session.post(url,
                                 headers=headers,
                                 proxies=self.proxies,
                                 data=data)
-        
-        if r.status_code == 204:
+
+        if r.status_code == 202 or r.status_code == 201:
             return True
 
+        print("[Error]: ", r.status_code)
+        print(r.text)
         return False
 
     def _user_call(self, method, url, params):
@@ -916,7 +918,7 @@ class AppleMusic:
         url = self.root + 'me/library/artists'
         return self._user_get(url, limit=limit, offset=offset)
     
-    def user_playlist_create(self, playlist_name, tracks):
+    def user_playlist_create(self, description=None, playlist_name=None, tracks=None):
         """
         Create a new playlist in Apple Music for the current user.
         :param playlist_name: The name of the new playlist.
@@ -925,14 +927,28 @@ class AppleMusic:
         url = self.root + 'me/library/playlists'
 
         # Create the payload with the necessary data
-        payload = {
-            'name': playlist_name,
-            'tracks' : tracks
+        data = {
+            "attributes": {
+                "name": playlist_name,
+                "description": description
+            }
+            ,
+            "relationships": {
+                "tracks" : {
+                    "id": tracks, 
+                    "type": "songs"
+                },
+                "parent": {
+                    "id": "p.playlistsroot",
+                    "type": "library-playlist-folders"
+                }
+            }
         }
 
-        return self._post_call(url, json.dumps(payload))
-
-    
+        payload = json.dumps(data).encode('utf-8')
+        #print(payload)
+        return self._post_call(url, payload)
+  
     def user_playlist_add_track(self, playlist_id=None, track_id=None):
         """
         Create a new playlist in Apple Music for the current user.
@@ -956,15 +972,16 @@ class AppleMusic:
         :return: The response data indicating the success of the operation.
         """
         url = self.root + f'me/library/?ids[albums]={album_id}'
+        
         return self._post_call(url, "")
     
-    def current_user_saved_tracks_add(self, song_id):
+    def current_user_saved_tracks_add(self, song_id=None):
         """
         Add a specific song to the current user's saved tracks.
         :param song_id: The ID of the song to be added.
         :return: The response data indicating the success of the operation.
         """
-        url = self.root + f'me/library/?ids[songs]{song_id}'
+        url = self.root + f'me/library/?ids[songs]={song_id}'
         return self._post_call(url, "")
      
     def current_user_followed_artists_add(self, artist_id=None):
@@ -974,5 +991,5 @@ class AppleMusic:
         :param artist_id: The ID of the artist to be added.
         :return: The response data indicating the success of the operation.
         """
-        url = self.root + f'me/library/?ids[artists]{artist_id}'
+        url = self.root + f'me/library/?ids[artists]={artist_id}'
         return self._post_call(url, "")

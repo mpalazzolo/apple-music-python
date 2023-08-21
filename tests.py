@@ -19,7 +19,7 @@ class UserTests(unittest.TestCase):
         # You can add more assertions here based on the expected behavior of the function
 
     def test_playlist_retrieve(self):
-        playlists = am.current_user_playlists()
+        playlists = am.current_user_playlists(limit=1)
         self.assertIsNotNone(playlists)
         # You can add more assertions here based on the expected behavior of the function
 
@@ -39,10 +39,11 @@ class UserTests(unittest.TestCase):
         self.assertTrue(response)  # Check if the album was added successfully
         # You can add more assertions here based on the expected behavior of the function
 
-    def test_playlist_set(self):
+    def test_playlist_create(self):
         playlist_name = "Test Playlist"
-        tracks = [self.xo_tour_life, self.new_patek]  # Replace with actual track IDs
-        response = am.user_playlist_create(playlist_name, tracks)
+        description = "apple-music-python test playlist!"
+        tracks = self.xo_tour_life, self.new_patek  # Replace with actual track IDs
+        response = am.user_playlist_create(playlist_name=playlist_name, tracks=tracks, description=description)
         self.assertTrue(response)  # Check if the playlist was added successfully
         # You can add more assertions here based on the expected behavior of the function
 
@@ -52,11 +53,12 @@ class UserTests(unittest.TestCase):
         self.assertTrue(response)  # Check if the song was added successfully
         # You can add more assertions here based on the expected behavior of the function
 
-    def test_artist_set(self):
-        artist_id = self.smokepurpp
-        response = am.current_user_followed_artists_add(artist_id)
-        self.assertTrue(response)  # Check if the artist was added successfully
-        # You can add more assertions here based on the expected behavior of the function
+    # It doesn't seem like you can like an artist through the API. (Maybe through MusicKit?)
+    #def test_artist_set(self):
+    #    artist_id = self.smokepurpp
+    #    response = am.current_user_followed_artists_add(artist_id)
+    #    self.assertTrue(response)  # Check if the artist was added successfully
+    #    # You can add more assertions here based on the expected behavior of the function
     
 class BaseTests(unittest.TestCase):
 
@@ -313,7 +315,7 @@ class BaseTests(unittest.TestCase):
         results = am.search(self.search_term, types=['songs'])
         expected_name = 'Nice For What'
         actual_name = results['results']['songs']['data'][0]['attributes']['name']
-        self.assertTrue(expected_name == actual_name, f"Expected: {expected_name}, Actual: {actual_name}")
+        self.assertTrue(expected_name == actual_name, f"Expected: {expected_name}, Actual: {actual_name}, Actual Results: {results}")
 
     def test_search_windows(self):
         results = am.search(self.search_term, types=['songs'], os='windows')
@@ -356,7 +358,7 @@ if __name__ == '__main__':
     base_test_suite = test_loader.loadTestsFromTestCase(BaseTests)
 
     all_tests = unittest.TestSuite()
-    #all_tests.addTests(base_test_suite)
+    all_tests.addTests(base_test_suite)
     if 'user_test_suite' in locals():
         all_tests.addTests(user_test_suite)
 
