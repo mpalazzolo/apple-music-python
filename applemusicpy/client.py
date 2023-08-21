@@ -6,7 +6,6 @@ import json
 import time
 import re
 
-
 class AppleMusic:
     """
     This class is used to connect to the Apple Music API and make requests for catalog resources
@@ -87,10 +86,13 @@ class AppleMusic:
         """
 
         if self._music_user_token and self.token_str:
-            return {'Authorization': 'Bearer %s' % self.token_str, 'Music-User-Token': self._music_user_token}
+            return {
+                'Authorization': 'Bearer {}'.format(self.token_str),
+                'Music-User-Token': self._music_user_token
+            }
         else:
+            print("Token or Music User Token missing")
             return {}
-        
 
     def _call(self, method, url, params):
         """
@@ -149,6 +151,35 @@ class AppleMusic:
 
         return False
 
+    def _user_call(self, method, url, params):
+        """
+        Make a call to the API
+
+        :param method: 'GET', 'POST', 'DELETE', or 'PUT'
+        :param url: URL of API endpoint
+        :param params: API paramaters
+
+        :return: JSON data from the API
+        """
+        if not url.startswith('http'):
+            url = self.root + url
+
+        if not self.token_is_valid():
+            self.generate_token(self.session_length)
+
+
+        headers = self._post_auth_headers()
+
+        headers['Content-Type'] = 'application/json'
+
+        r = self._session.request(method, url,
+                                  headers=headers,
+                                  proxies=self.proxies,
+                                  params=params,
+                                  timeout=self.requests_timeout)
+        r.raise_for_status()  # Check for error
+        
+        return r.json()
 
     def _get(self, url, **kwargs):
         """
@@ -173,6 +204,43 @@ class AppleMusic:
                         print('retrying ...' + str(delay) + ' secs')
                         time.sleep(delay + 1)
                         delay += 1
+                else:
+                    raise
+            except Exception as e:
+                print('exception', str(e))
+                retries -= 1
+                if retries >= 0:
+                    print('retrying ...' + str(delay) + 'secs')
+                    time.sleep(delay + 1)
+                    delay += 1
+                else:
+                    raise
+
+    def _user_get(self, url, **kwargs):
+        """
+        GET request from the API
+
+        :param url: URL for API endpoint
+
+        :return: JSON data from the API
+        """
+        retries = self.max_retries
+        delay = 1
+        while retries > 0:
+            try:
+                return self._user_call('GET', url, kwargs)
+            except HTTPError as e:  # Retry for some known issues
+                retries -= 1
+                status = e.response.status_code
+                if status == 429 or (500 <= status < 600):
+                    if retries < 0:
+                        raise
+                    else:
+                        print('retrying ...' + str(delay) + ' secs')
+                        time.sleep(delay + 1)
+                        delay += 1
+                if status == 403:
+                    print('exception', str(e))
                 else:
                     raise
             except Exception as e:
@@ -821,8 +889,8 @@ class AppleMusic:
         :param offset: The offset for pagination.
         :return: Liked songs data in JSON format.
         """
-        url = self.root + f'me/library/songs?limit={limit}&offset={offset}'
-        return self._get(url)
+        url = self.root + 'me/library/songs'
+        return self._user_get(url, limit=limit, offset=offset)
 
     def current_user_playlists(self):
         """
@@ -830,7 +898,7 @@ class AppleMusic:
         :return: Playlists data in JSON format.
         """
         url = self.root + 'me/library/playlists'
-        return self._get(url)
+        return self._user_get(url)
 
     def current_user_saved_albums(self):
         """
@@ -838,7 +906,7 @@ class AppleMusic:
         :return: Saved albums data in JSON format.
         """
         url = self.root + 'me/library/albums'
-        return self._get(url)
+        return self._user_get(url)
     
     def current_user_followed_artists(self):
         """
@@ -846,7 +914,7 @@ class AppleMusic:
         :return: Followed artists data in JSON format.
         """
         url = self.root + 'me/library/artists'
-        return self._get(url)
+        return self._user_get(url)
     
     def user_playlist_create(self, playlist_name, tracks):
         """
