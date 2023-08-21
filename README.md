@@ -7,14 +7,14 @@ See the [Apple Music API documentation](https://developer.apple.com/documentatio
 ## Getting Started
 
 ### Documentation
-Find full documentation of the project here:
+Find more documentation of the project here:
 https://apple-music-python.readthedocs.io
 
 ### Prerequisites
 
 You must have an Apple Developer Account and a MusicKit API Key. See instructions on how to obtain these here: [Getting Keys And Creating Tokens.](https://developer.apple.com/documentation/applemusicapi/getting_keys_and_creating_tokens)
 
-To access a user's library, you need to have a music_user_token. See MusicKit for instructions: [User Authentication for MusicKit.] (https://developer.apple.com/documentation/applemusicapi/user_authentication_for_musickit)
+To access a user's library, you need to have a music_user_token. See MusicKit for instructions: [User Authentication for MusicKit.](https://developer.apple.com/documentation/applemusicapi/user_authentication_for_musickit)
 
 ### Dependencies
 
