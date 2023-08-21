@@ -1,3 +1,4 @@
 *.p8
-*keys*
+*key*
 .DS_Store
+*token*
