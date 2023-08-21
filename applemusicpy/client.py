@@ -892,29 +892,29 @@ class AppleMusic:
         url = self.root + 'me/library/songs'
         return self._user_get(url, limit=limit, offset=offset)
 
-    def current_user_playlists(self):
+    def current_user_playlists(self, limit=10, offset=0):
         """
         Retrieve all playlists of the current user in Apple Music.
         :return: Playlists data in JSON format.
         """
         url = self.root + 'me/library/playlists'
-        return self._user_get(url)
+        return self._user_get(url, limit=limit, offset=offset)
 
-    def current_user_saved_albums(self):
+    def current_user_saved_albums(self, limit=10, offset=0):
         """
         Retrieve saved albums of the current user in Apple Music.
         :return: Saved albums data in JSON format.
         """
         url = self.root + 'me/library/albums'
-        return self._user_get(url)
+        return self._user_get(url, limit=limit, offset=offset)
     
-    def current_user_followed_artists(self):
+    def current_user_followed_artists(self, limit=10, offset=0):
         """
         Retrieve artists followed by the current user in Apple Music.
         :return: Followed artists data in JSON format.
         """
         url = self.root + 'me/library/artists'
-        return self._user_get(url)
+        return self._user_get(url, limit=limit, offset=offset)
     
     def user_playlist_create(self, playlist_name, tracks):
         """

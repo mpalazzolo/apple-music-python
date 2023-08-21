@@ -1,8 +1,64 @@
 from applemusicpy import AppleMusic
-import unittest
+import unittest, os
 
+class UserTests(unittest.TestCase):
+    def setUp(self):
+        # albums
+        self.born_to_run = '310730204'
+        self.ready_to_die = '204669326'
+        # songs
+        self.xo_tour_life = '1274153124'
+        self.new_patek = '1436530704'
+        # artists
+        self.lil_pump = '1129587661'
+        self.smokepurpp = '1122104172'
 
-class TestApple(unittest.TestCase):
+    def test_album_retrieve(self):
+        albums = am.current_user_saved_albums()
+        self.assertIsNotNone(albums)
+        # You can add more assertions here based on the expected behavior of the function
+
+    def test_playlist_retrieve(self):
+        playlists = am.current_user_playlists()
+        self.assertIsNotNone(playlists)
+        # You can add more assertions here based on the expected behavior of the function
+
+    def test_song_retrieve(self):
+        songs = am.current_user_saved_tracks()
+        self.assertIsNotNone(songs)
+        # You can add more assertions here based on the expected behavior of the function
+
+    def test_artist_retrieve(self):
+        artists = am.current_user_followed_artists()
+        self.assertIsNotNone(artists)
+        # You can add more assertions here based on the expected behavior of the function
+
+    def test_album_set(self):
+        album_id = self.born_to_run
+        response = am.current_user_saved_albums_add(album_id)
+        self.assertTrue(response)  # Check if the album was added successfully
+        # You can add more assertions here based on the expected behavior of the function
+
+    def test_playlist_set(self):
+        playlist_name = "Test Playlist"
+        tracks = [self.xo_tour_life, self.new_patek]  # Replace with actual track IDs
+        response = am.user_playlist_create(playlist_name, tracks)
+        self.assertTrue(response)  # Check if the playlist was added successfully
+        # You can add more assertions here based on the expected behavior of the function
+
+    def test_song_set(self):
+        song_id = self.xo_tour_life
+        response = am.current_user_saved_tracks_add(song_id)
+        self.assertTrue(response)  # Check if the song was added successfully
+        # You can add more assertions here based on the expected behavior of the function
+
+    def test_artist_set(self):
+        artist_id = self.smokepurpp
+        response = am.current_user_followed_artists_add(artist_id)
+        self.assertTrue(response)  # Check if the artist was added successfully
+        # You can add more assertions here based on the expected behavior of the function
+    
+class BaseTests(unittest.TestCase):
 
     def setUp(self):
         # albums
@@ -272,7 +328,7 @@ class TestApple(unittest.TestCase):
         self.assertTrue(expected_name == actual_name, f"Expected: {expected_name}, Actual: {actual_name}")
 
 if __name__ == '__main__':
-    # These tests require API authorization, so need to read in keys
+    # These tests require API authorization, so need to read in keys and user token
     keys = {}
 
     with open('private_key.p8', 'r') as f:
@@ -283,6 +339,25 @@ if __name__ == '__main__':
             name, val = line.partition('=')[::2]
             keys[name.strip()] = val.strip()
 
-    am = AppleMusic(secret_key=keys['secret'], key_id=keys['keyID'], team_id=keys['teamID'])
+    test_loader = unittest.TestLoader()
 
-    unittest.main()
+    user_token_file = 'music_user_token.txt'
+    if os.path.exists(user_token_file):
+        with open(user_token_file, 'r') as f:
+            music_user_token = f.read().strip()
+            am = AppleMusic(secret_key=keys['secret'], key_id=keys['keyID'], team_id=keys['teamID'], music_user_token=music_user_token)
+
+        print("Running tests with user token...")
+        user_test_suite = test_loader.loadTestsFromTestCase(UserTests)
+    else:
+        print("No music_user_token.txt found. Running normal tests...")
+        am = AppleMusic(secret_key=keys['secret'], key_id=keys['keyID'], team_id=keys['teamID'])
+
+    base_test_suite = test_loader.loadTestsFromTestCase(BaseTests)
+
+    all_tests = unittest.TestSuite()
+    #all_tests.addTests(base_test_suite)
+    if 'user_test_suite' in locals():
+        all_tests.addTests(user_test_suite)
+
+    unittest.TextTestRunner(verbosity=2).run(all_tests)
