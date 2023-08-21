@@ -6,7 +6,7 @@ with open('README.md', 'r') as fh:
 setup(
     name='apple-music-python',
     url='https://github.com/j-jacobson/apple-music-python',
-    version='1.0.5',
+    version='2.0.0',
     packages=['applemusicpy'],
     license='LICENSE.txt',
     author='Matt Palazzolo, Jonathan Jacobson',
