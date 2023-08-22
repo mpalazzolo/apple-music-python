@@ -475,7 +475,7 @@ class AppleMusic:
         return self._get_multiple_resources(playlist_ids, 'playlists', storefront=storefront, l=l,
                                             include=include)
 
-    def song(self, song_id, storefront='us', l=None, include=None):
+    def song(self, song_id, storefront='us', l=None, include=None, extend=None):
         """
         Get a catalog Song by ID
 
@@ -486,7 +486,7 @@ class AppleMusic:
 
         :return: Song data in JSON format
         """
-        return self._get_resource(song_id, 'songs', storefront=storefront, l=l, include=include)
+        return self._get_resource(song_id, 'songs', storefront=storefront, l=l, include=include, extend=extend)
 
     def song_relationship(self, song_id, relationship, storefront='us', l=None, limit=None, offset=None):
         """
@@ -501,10 +501,9 @@ class AppleMusic:
 
         :return: A List of relationship data in JSON format
         """
-        return self._get_resource_relationship(song_id, 'songs', relationship, storefront=storefront, l=l,
-                                               limit=limit, offset=offset)
+        return self._get_resource_relationship(song_id, 'songs', relationship, storefront=storefront, l=l, limit=limit, offset=offset)
 
-    def songs(self, song_ids, storefront='us', l=None, include=None):
+    def songs(self, song_ids, storefront='us', l=None, include=None, extend=None):
         """
         Get all catalog song data associated with the IDs provided
 
@@ -515,9 +514,9 @@ class AppleMusic:
 
         :return: A list of catalog song data in JSON format
         """
-        return self._get_multiple_resources(song_ids, 'songs', storefront=storefront, l=l, include=include)
+        return self._get_multiple_resources(song_ids, 'songs', storefront=storefront, l=l, include=include, extend=extend)
 
-    def songs_by_isrc(self, isrcs, song_ids=None, storefront='us', l=None, include=None):
+    def songs_by_isrc(self, isrcs, song_ids=None, storefront='us', l=None, include=None, extend=None):
         """
         Get all catalog songs associated with the ISRCs provided
 
@@ -530,7 +529,7 @@ class AppleMusic:
         :return: A list of catalog song data in JSON format
         """
         return self._get_resource_by_filter('isrc', isrcs, 'songs', resource_ids=song_ids,
-                                            storefront=storefront, l=l, include=include)
+                                            storefront=storefront, l=l, include=include, extend=extend)
 
     def artist(self, artist_id, storefront='us', l=None, include=None):
         """
@@ -814,7 +813,7 @@ class AppleMusic:
         return self._get(url, l=l, limit=limit, offset=offset)
 
     # Search
-    def search(self, term, storefront='us', l=None, limit=None, offset=None, types=None, hints=False, os='linux'):
+    def search(self, term, storefront='us', l=None, limit=None, offset=None, types=None, hints=False, os=None):
         """
         Query the Apple Music API based on a search term
 
@@ -825,7 +824,6 @@ class AppleMusic:
         :param offset: The index of the first item returned
         :param types: A list of resource types to return (e.g. songs, artists, etc.)
         :param hints: Include search hints
-        :param os: Operating System being used. If search isn't working on Windows, try os='windows'.
 
         :return: The search results in JSON format
         """
@@ -838,28 +836,23 @@ class AppleMusic:
         else:
             type_str = None
 
-        if os == 'linux':
-            return self._get(url, term=term, l=l, limit=limit, offset=offset, types=type_str)
-        elif os == 'windows':
-            params = {
-                'term': term,
-                'limit': limit,
-                'offset': offset,
-                'types': type_str
-            }
+        params = {
+            'term': term,
+            'limit': limit,
+            'offset': offset,
+            'types': type_str
+        }
 
-            # The params parameter in requests converts '+' to '%2b'
-            # On some Windows computers, this breaks the API request, so generate full URL instead
-            param_string = '?'
-            for param, value in params.items():
-                if value is None:
-                    continue
-                param_string = param_string + str(param) + '=' + str(value) + '&'
-            param_string = param_string[:len(param_string) - 1]  # This removes the last trailing '&'
+        # The params parameter in requests converts '+' to '%2b'
+        # On some Windows computers, this breaks the API request, so generate full URL instead
+        param_string = '?'
+        for param, value in params.items():
+            if value is None:
+                continue
+            param_string = param_string + str(param) + '=' + str(value) + '&'
+        param_string = param_string[:len(param_string) - 1]  # This removes the last trailing '&'
 
-            return self._get(url + param_string)
-        else:
-            return None
+        return self._get(url + param_string)
 
     # Charts
     def charts(self, storefront='us', chart=None, types=None, l=None, genre=None, limit=None, offset=None):
