@@ -475,7 +475,7 @@ class AppleMusic:
         return self._get_multiple_resources(playlist_ids, 'playlists', storefront=storefront, l=l,
                                             include=include)
 
-    def song(self, song_id, storefront='us', l=None, include=None):
+    def song(self, song_id, storefront='us', l=None, include=None, extend=None):
         """
         Get a catalog Song by ID
 
@@ -486,7 +486,7 @@ class AppleMusic:
 
         :return: Song data in JSON format
         """
-        return self._get_resource(song_id, 'songs', storefront=storefront, l=l, include=include)
+        return self._get_resource(song_id, 'songs', storefront=storefront, l=l, include=include, extend=extend)
 
     def song_relationship(self, song_id, relationship, storefront='us', l=None, limit=None, offset=None):
         """
@@ -501,10 +501,9 @@ class AppleMusic:
 
         :return: A List of relationship data in JSON format
         """
-        return self._get_resource_relationship(song_id, 'songs', relationship, storefront=storefront, l=l,
-                                               limit=limit, offset=offset)
+        return self._get_resource_relationship(song_id, 'songs', relationship, storefront=storefront, l=l, limit=limit, offset=offset)
 
-    def songs(self, song_ids, storefront='us', l=None, include=None):
+    def songs(self, song_ids, storefront='us', l=None, include=None, extend=None):
         """
         Get all catalog song data associated with the IDs provided
 
@@ -515,9 +514,9 @@ class AppleMusic:
 
         :return: A list of catalog song data in JSON format
         """
-        return self._get_multiple_resources(song_ids, 'songs', storefront=storefront, l=l, include=include)
+        return self._get_multiple_resources(song_ids, 'songs', storefront=storefront, l=l, include=include, extend=extend)
 
-    def songs_by_isrc(self, isrcs, song_ids=None, storefront='us', l=None, include=None):
+    def songs_by_isrc(self, isrcs, song_ids=None, storefront='us', l=None, include=None, extend=None):
         """
         Get all catalog songs associated with the ISRCs provided
 
@@ -530,7 +529,7 @@ class AppleMusic:
         :return: A list of catalog song data in JSON format
         """
         return self._get_resource_by_filter('isrc', isrcs, 'songs', resource_ids=song_ids,
-                                            storefront=storefront, l=l, include=include)
+                                            storefront=storefront, l=l, include=include, extend=extend)
 
     def artist(self, artist_id, storefront='us', l=None, include=None):
         """
