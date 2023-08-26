@@ -877,7 +877,7 @@ class AppleMusic:
         return self._get(url, types=type_str, chart=chart, l=l, genre=genre, limit=limit, offset=offset)
     
     # User Library Functions
-    def current_user_saved_tracks(self, limit=10, offset=0):
+    def current_user_saved_tracks(self, limit=10, offset=0, include=None):
         """
         Retrieve liked songs from the current user's Apple Music library.
         :param limit: The maximum number of tracks to retrieve.
@@ -885,7 +885,7 @@ class AppleMusic:
         :return: Liked songs data in JSON format.
         """
         url = self.root + 'me/library/songs'
-        return self._user_get(url, limit=limit, offset=offset)
+        return self._user_get(url, limit=limit, offset=offset, include=include)
 
     def current_user_playlists(self, limit=10, offset=0):
         """
