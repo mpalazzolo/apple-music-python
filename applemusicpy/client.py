@@ -374,6 +374,19 @@ class AppleMusic:
         """
         return self._get_multiple_resources(album_ids, 'albums', storefront=storefront, l=l, include=include)
 
+    def albums_by_upc(self, album_upcs, storefront='us', l=None, include=None):
+        """
+        Get all catalog album data associated with the UPCs provided
+
+        :param album_upcs: a list of album UPCs
+        :param storefront: Apple Music store front
+        :param l: The localization to use, specified by a language tag. Check API documentation.
+        :param include: Additional relationships to include in the fetch. Check API documentation.
+
+        :return: A list of catalog album data in JSON format
+        """
+        return self._get_resource_by_filter(filter_type='upc', filter_list=album_upcs, resource_type='albums', storefront=storefront, l=l, include=include)
+    
     def music_video(self, music_video_id, storefront='us', l=None, include=None):
         """
         Get a catalog Music Video by ID
@@ -895,13 +908,13 @@ class AppleMusic:
         url = self.root + 'me/library/playlists'
         return self._user_get(url, limit=limit, offset=offset)
 
-    def current_user_saved_albums(self, limit=10, offset=0):
+    def current_user_saved_albums(self, limit=10, offset=0, extend=None, include=None):
         """
         Retrieve saved albums of the current user in Apple Music.
         :return: Saved albums data in JSON format.
         """
         url = self.root + 'me/library/albums'
-        return self._user_get(url, limit=limit, offset=offset)
+        return self._user_get(url, limit=limit, offset=offset, extend=extend, include=include)
     
     def current_user_followed_artists(self, limit=10, offset=0):
         """
