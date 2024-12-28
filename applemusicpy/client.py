@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 import jwt
 import requests
 from requests.exceptions import HTTPError
+import json
 import time
 import re
 
@@ -11,7 +12,7 @@ class AppleMusic:
     This class is used to connect to the Apple Music API and make requests for catalog resources
     """
 
-    def __init__(self, secret_key, key_id, team_id, proxies=None,
+    def __init__(self, secret_key, key_id, team_id, music_user_token=None, proxies=None, 
                  requests_session=True, max_retries=10, requests_timeout=None, session_length=12):
         """
         :param proxies: A dictionary of proxies, if needed
@@ -28,6 +29,7 @@ class AppleMusic:
         self._secret_key = secret_key
         self._key_id = key_id
         self._team_id = team_id
+        self._music_user_token = music_user_token
         self._alg = 'ES256'  # encryption algo that Apple requires
         self.token_str = ""  # encrypted api token
         self.session_length = session_length
@@ -76,6 +78,19 @@ class AppleMusic:
             return {'Authorization': 'Bearer {}'.format(self.token_str)}
         else:
             return {}
+    
+    def _post_auth_headers(self):
+        """
+        Get header for a POST API request
+
+        :return: header in dictionary format
+        """
+
+        if self._music_user_token and self.token_str:
+            return {'Authorization': 'Bearer %s' % self.token_str, 'Music-User-Token': self._music_user_token}
+        else:
+            return {}
+        
 
     def _call(self, method, url, params):
         """
@@ -93,7 +108,9 @@ class AppleMusic:
         if not self.token_is_valid():
             self.generate_token(self.session_length)
 
+
         headers = self._auth_headers()
+
         headers['Content-Type'] = 'application/json'
 
         r = self._session.request(method, url,
@@ -103,6 +120,35 @@ class AppleMusic:
                                   timeout=self.requests_timeout)
         r.raise_for_status()  # Check for error
         return r.json()
+    
+    def _post_call(self, url, data):
+        """
+        Make a POST call to the API
+
+        :param url: URL of API endpoint
+        :data data: API paramaters for songs
+
+        :return: JSON data from the API
+        """
+        if not url.startswith('http'):
+            url = self.root + url
+
+        if not self.token_is_valid():
+            self.generate_token(self.session_length)
+
+
+        headers = self._post_auth_headers()
+
+        r = self._session.post(url,
+                                headers=headers,
+                                proxies=self.proxies,
+                                data=data)
+        
+        if r.status_code == 204:
+            return True
+
+        return False
+
 
     def _get(self, url, **kwargs):
         """
@@ -147,6 +193,14 @@ class AppleMusic:
 
     def _put(self, url, **kwargs):
         return self._call('PUT', url, kwargs)
+
+    def _insert_track(self, playlist_id, track_id):
+
+        url = self.root + '/me/library/playlists/%s/tracks' % playlist_id
+        data = {'data': [{'id': track_id, 'type': 'songs'}]}
+
+        return self._post_call(url, json.dumps(data))
+            
 
     def _get_resource(self, resource_id, resource_type, storefront='us', **kwargs):
         """
