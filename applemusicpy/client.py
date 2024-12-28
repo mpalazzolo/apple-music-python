@@ -2,16 +2,16 @@ from datetime import datetime, timedelta
 import jwt
 import requests
 from requests.exceptions import HTTPError
+import json
 import time
 import re
-
 
 class AppleMusic:
     """
     This class is used to connect to the Apple Music API and make requests for catalog resources
     """
 
-    def __init__(self, secret_key, key_id, team_id, proxies=None,
+    def __init__(self, secret_key, key_id, team_id, music_user_token=None, proxies=None, 
                  requests_session=True, max_retries=10, requests_timeout=None, session_length=12):
         """
         :param proxies: A dictionary of proxies, if needed
@@ -28,6 +28,7 @@ class AppleMusic:
         self._secret_key = secret_key
         self._key_id = key_id
         self._team_id = team_id
+        self._music_user_token = music_user_token
         self._alg = 'ES256'  # encryption algo that Apple requires
         self.token_str = ""  # encrypted api token
         self.session_length = session_length
@@ -65,7 +66,6 @@ class AppleMusic:
         token = jwt.encode(payload, self._secret_key, algorithm=self._alg, headers=headers)
         self.token_str = token if type(token) is not bytes else token.decode()
 
-
     def _auth_headers(self):
         """
         Get header for API request
@@ -75,6 +75,22 @@ class AppleMusic:
         if self.token_str:
             return {'Authorization': 'Bearer {}'.format(self.token_str)}
         else:
+            return {}
+    
+    def _post_auth_headers(self):
+        """
+        Get header for a POST API request
+
+        :return: header in dictionary format
+        """
+
+        if self._music_user_token and self.token_str:
+            return {
+                'Authorization': 'Bearer {}'.format(self.token_str),
+                'Music-User-Token': self._music_user_token
+            }
+        else:
+            print("Token or Music User Token missing")
             return {}
 
     def _call(self, method, url, params):
@@ -93,7 +109,9 @@ class AppleMusic:
         if not self.token_is_valid():
             self.generate_token(self.session_length)
 
+
         headers = self._auth_headers()
+
         headers['Content-Type'] = 'application/json'
 
         r = self._session.request(method, url,
@@ -102,6 +120,67 @@ class AppleMusic:
                                   params=params,
                                   timeout=self.requests_timeout)
         r.raise_for_status()  # Check for error
+        return r.json()
+    
+    def _post_call(self, url, data):
+        """
+        Make a POST call to the API
+
+        :param url: URL of API endpoint
+        :data data: API paramaters for songs
+
+        :return: JSON data from the API
+        """
+        if not url.startswith('http'):
+            url = self.root + url
+
+        if not self.token_is_valid():
+            self.generate_token(self.session_length)
+
+        headers = self._post_auth_headers()
+
+        headers['Content-Type'] = 'application/json'
+
+        r = self._session.post(url,
+                                headers=headers,
+                                proxies=self.proxies,
+                                data=data)
+
+        if r.status_code == 202 or r.status_code == 201:
+            return True
+
+        print("[Error]: ", r.status_code)
+        print(r.text)
+        return False
+
+    def _user_call(self, method, url, params):
+        """
+        Make a call to the API
+
+        :param method: 'GET', 'POST', 'DELETE', or 'PUT'
+        :param url: URL of API endpoint
+        :param params: API paramaters
+
+        :return: JSON data from the API
+        """
+        if not url.startswith('http'):
+            url = self.root + url
+
+        if not self.token_is_valid():
+            self.generate_token(self.session_length)
+
+
+        headers = self._post_auth_headers()
+
+        headers['Content-Type'] = 'application/json'
+
+        r = self._session.request(method, url,
+                                  headers=headers,
+                                  proxies=self.proxies,
+                                  params=params,
+                                  timeout=self.requests_timeout)
+        r.raise_for_status()  # Check for error
+        
         return r.json()
 
     def _get(self, url, **kwargs):
@@ -127,6 +206,43 @@ class AppleMusic:
                         print('retrying ...' + str(delay) + ' secs')
                         time.sleep(delay + 1)
                         delay += 1
+                else:
+                    raise
+            except Exception as e:
+                print('exception', str(e))
+                retries -= 1
+                if retries >= 0:
+                    print('retrying ...' + str(delay) + 'secs')
+                    time.sleep(delay + 1)
+                    delay += 1
+                else:
+                    raise
+
+    def _user_get(self, url, **kwargs):
+        """
+        GET request from the API
+
+        :param url: URL for API endpoint
+
+        :return: JSON data from the API
+        """
+        retries = self.max_retries
+        delay = 1
+        while retries > 0:
+            try:
+                return self._user_call('GET', url, kwargs)
+            except HTTPError as e:  # Retry for some known issues
+                retries -= 1
+                status = e.response.status_code
+                if status == 429 or (500 <= status < 600):
+                    if retries < 0:
+                        raise
+                    else:
+                        print('retrying ...' + str(delay) + ' secs')
+                        time.sleep(delay + 1)
+                        delay += 1
+                if status == 403:
+                    print('exception', str(e))
                 else:
                     raise
             except Exception as e:
@@ -289,6 +405,19 @@ class AppleMusic:
         """
         return self._get_multiple_resources(album_ids, 'albums', storefront=storefront, l=l, include=include)
 
+    def albums_by_upc(self, album_upcs, storefront='us', l=None, include=None):
+        """
+        Get all catalog album data associated with the UPCs provided
+
+        :param album_upcs: a list of album UPCs
+        :param storefront: Apple Music store front
+        :param l: The localization to use, specified by a language tag. Check API documentation.
+        :param include: Additional relationships to include in the fetch. Check API documentation.
+
+        :return: A list of catalog album data in JSON format
+        """
+        return self._get_resource_by_filter(filter_type='upc', filter_list=album_upcs, resource_type='albums', storefront=storefront, l=l, include=include)
+    
     def music_video(self, music_video_id, storefront='us', l=None, include=None):
         """
         Get a catalog Music Video by ID
@@ -423,7 +552,7 @@ class AppleMusic:
         return self._get_multiple_resources(playlist_ids, 'playlists', storefront=storefront, l=l,
                                             include=include)
 
-    def song(self, song_id, storefront='us', l=None, include=None):
+    def song(self, song_id, storefront='us', l=None, include=None, extend=None):
         """
         Get a catalog Song by ID
 
@@ -434,7 +563,7 @@ class AppleMusic:
 
         :return: Song data in JSON format
         """
-        return self._get_resource(song_id, 'songs', storefront=storefront, l=l, include=include)
+        return self._get_resource(song_id, 'songs', storefront=storefront, l=l, include=include, extend=extend)
 
     def song_relationship(self, song_id, relationship, storefront='us', l=None, limit=None, offset=None):
         """
@@ -449,10 +578,9 @@ class AppleMusic:
 
         :return: A List of relationship data in JSON format
         """
-        return self._get_resource_relationship(song_id, 'songs', relationship, storefront=storefront, l=l,
-                                               limit=limit, offset=offset)
+        return self._get_resource_relationship(song_id, 'songs', relationship, storefront=storefront, l=l, limit=limit, offset=offset)
 
-    def songs(self, song_ids, storefront='us', l=None, include=None):
+    def songs(self, song_ids, storefront='us', l=None, include=None, extend=None):
         """
         Get all catalog song data associated with the IDs provided
 
@@ -463,9 +591,9 @@ class AppleMusic:
 
         :return: A list of catalog song data in JSON format
         """
-        return self._get_multiple_resources(song_ids, 'songs', storefront=storefront, l=l, include=include)
+        return self._get_multiple_resources(song_ids, 'songs', storefront=storefront, l=l, include=include, extend=extend)
 
-    def songs_by_isrc(self, isrcs, song_ids=None, storefront='us', l=None, include=None):
+    def songs_by_isrc(self, isrcs, song_ids=None, storefront='us', l=None, include=None, extend=None):
         """
         Get all catalog songs associated with the ISRCs provided
 
@@ -478,7 +606,7 @@ class AppleMusic:
         :return: A list of catalog song data in JSON format
         """
         return self._get_resource_by_filter('isrc', isrcs, 'songs', resource_ids=song_ids,
-                                            storefront=storefront, l=l, include=include)
+                                            storefront=storefront, l=l, include=include, extend=extend)
 
     def artist(self, artist_id, storefront='us', l=None, include=None):
         """
@@ -778,7 +906,7 @@ class AppleMusic:
         return self._get(url, l=l, limit=limit, offset=offset)
 
     # Search
-    def search(self, term, storefront='us', l=None, limit=None, offset=None, types=None, hints=False, os='linux'):
+    def search(self, term, storefront='us', l=None, limit=None, offset=None, types=None, hints=False, os=None):
         """
         Query the Apple Music API based on a search term
 
@@ -789,7 +917,6 @@ class AppleMusic:
         :param offset: The index of the first item returned
         :param types: A list of resource types to return (e.g. songs, artists, etc.)
         :param hints: Include search hints
-        :param os: Operating System being used. If search isn't working on Windows, try os='windows'.
 
         :return: The search results in JSON format
         """
@@ -802,30 +929,23 @@ class AppleMusic:
         else:
             type_str = None
 
-        if os == 'linux':
-            return self._get(url, term=term, l=l, limit=limit, offset=offset, types=type_str)
-        elif os == 'windows':
-            params = {
-                'term': term,
-                'limit': limit,
-                'offset': offset,
-                'types': type_str
-            }
+        params = {
+            'term': term,
+            'limit': limit,
+            'offset': offset,
+            'types': type_str
+        }
 
-            # The params parameter in requests converts '+' to '%2b'
-            # On some Windows computers, this breaks the API request, so generate full URL instead
-            param_string = '?'
-            for param, value in params.items():
-                if value is None:
-                    continue
-                param_string = param_string + str(param) + '=' + str(value) + '&'
-            param_string = param_string[:len(param_string) - 1]  # This removes the last trailing '&'
+        # The params parameter in requests converts '+' to '%2b'
+        # On some Windows computers, this breaks the API request, so generate full URL instead
+        param_string = '?'
+        for param, value in params.items():
+            if value is None:
+                continue
+            param_string = param_string + str(param) + '=' + str(value) + '&'
+        param_string = param_string[:len(param_string) - 1]  # This removes the last trailing '&'
 
-            return self._get(url + param_string)
-        else:
-            return None
-
-
+        return self._get(url + param_string)
 
     # Charts
     def charts(self, storefront='us', chart=None, types=None, l=None, genre=None, limit=None, offset=None):
@@ -848,3 +968,114 @@ class AppleMusic:
         else:
             type_str = None
         return self._get(url, types=type_str, chart=chart, l=l, genre=genre, limit=limit, offset=offset)
+    
+    # User Library Functions
+    def current_user_saved_tracks(self, limit=10, offset=0, include=None):
+        """
+        Retrieve liked songs from the current user's Apple Music library.
+        :param limit: The maximum number of tracks to retrieve.
+        :param offset: The offset for pagination.
+        :return: Liked songs data in JSON format.
+        """
+        url = self.root + 'me/library/songs'
+        return self._user_get(url, limit=limit, offset=offset, include=include)
+
+    def current_user_playlists(self, limit=10, offset=0):
+        """
+        Retrieve all playlists of the current user in Apple Music.
+        :return: Playlists data in JSON format.
+        """
+        url = self.root + 'me/library/playlists'
+        return self._user_get(url, limit=limit, offset=offset)
+
+    def current_user_saved_albums(self, limit=10, offset=0, extend=None, include=None):
+        """
+        Retrieve saved albums of the current user in Apple Music.
+        :return: Saved albums data in JSON format.
+        """
+        url = self.root + 'me/library/albums'
+        return self._user_get(url, limit=limit, offset=offset, extend=extend, include=include)
+    
+    def current_user_followed_artists(self, limit=10, offset=0):
+        """
+        Retrieve artists followed by the current user in Apple Music.
+        :return: Followed artists data in JSON format.
+        """
+        url = self.root + 'me/library/artists'
+        return self._user_get(url, limit=limit, offset=offset)
+    
+    def user_playlist_create(self, description=None, playlist_name=None, tracks=None):
+        """
+        Create a new playlist in Apple Music for the current user.
+        :param playlist_name: The name of the new playlist.
+        :return: The response data indicating the success of the operation.
+        """
+        url = self.root + 'me/library/playlists'
+
+        # Create the payload with the necessary data
+        data = {
+            "attributes": {
+                "name": playlist_name,
+                "description": description
+            }
+            ,
+            "relationships": {
+                "tracks" : {
+                    "id": tracks, 
+                    "type": "songs"
+                },
+                "parent": {
+                    "id": "p.playlistsroot",
+                    "type": "library-playlist-folders"
+                }
+            }
+        }
+
+        payload = json.dumps(data).encode('utf-8')
+        #print(payload)
+        return self._post_call(url, payload)
+  
+    def user_playlist_add_track(self, playlist_id=None, track_id=None):
+        """
+        Create a new playlist in Apple Music for the current user.
+        :param playlist_name: The name of the new playlist.
+        :return: The response data indicating the success of the operation.
+        """
+        url = self.root + f'me/library/playlists/{playlist_id}/tracks'
+
+        # Create the payload with the necessary data
+        payload = {
+            'id': track_id,
+            'type': "library-songs"
+        }
+
+        return self._post_call(url, json.dumps(payload))
+    
+    def current_user_saved_albums_add(self, album_id=None):
+        """
+        Add a specific album to the current user's saved albums.
+        :param album_id: The ID of the album to be added.
+        :return: The response data indicating the success of the operation.
+        """
+        url = self.root + f'me/library/?ids[albums]={album_id}'
+        
+        return self._post_call(url, "")
+    
+    def current_user_saved_tracks_add(self, song_id=None):
+        """
+        Add a specific song to the current user's saved tracks.
+        :param song_id: The ID of the song to be added.
+        :return: The response data indicating the success of the operation.
+        """
+        url = self.root + f'me/library/?ids[songs]={song_id}'
+        return self._post_call(url, "")
+     
+    def current_user_followed_artists_add(self, artist_id=None):
+        """
+        NOTE: This one might not work, it is not actually in the documentation.
+        Add a specific artist to the current user's followed artists.
+        :param artist_id: The ID of the artist to be added.
+        :return: The response data indicating the success of the operation.
+        """
+        url = self.root + f'me/library/?ids[artists]={artist_id}'
+        return self._post_call(url, "")

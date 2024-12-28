@@ -5,12 +5,12 @@ with open('README.md', 'r') as fh:
 
 setup(
     name='apple-music-python',
-    url='https://github.com/mpalazzolo/apple-music-python',
-    version='1.0.5',
+    url='https://github.com/j-jacobson/apple-music-python',
+    version='2.0.0',
     packages=['applemusicpy'],
     license='LICENSE.txt',
-    author='Matt Palazzolo',
-    author_email='mattpalazzolo@gmail.com',
+    author='Matt Palazzolo, Jonathan Jacobson',
+    author_email='mattpalazzolo@gmail.com, jonjacobson715@gmail.com',
     description='A python wrapper for the Apple Music API',
     long_description=long_description,
     long_description_content_type='text/markdown',
