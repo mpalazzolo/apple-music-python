@@ -176,6 +176,21 @@ class AppleMusic:
                                                            relationship)
         return self._get(url, **kwargs)
 
+    def _get_resource_relationship_view(self, resource_id, resource_type, relationship_view, storefront='us', **kwargs):
+        """
+        Get an Apple Music catalog resource relationship view (e.g. a song's artist)
+
+        :param resource_id: ID of resource
+        :param resource_type: Resource type (e.g. "songs")
+        :param relationship_view: Relationship view type (e.g. "related-albums")
+        :param storefront: Apple Music Storefont
+
+        :return: JSON data from API
+        """
+        url = self.root + 'catalog/{0}/{1}/{2}/view/{3}'.format(storefront, resource_type, str(resource_id),
+                                                                relationship_view)
+        return self._get(url, **kwargs)
+
     def _get_multiple_resources(self, resource_ids, resource_type, storefront='us', **kwargs):
         """
         Get multiple Apple Music catalog resources
@@ -245,6 +260,22 @@ class AppleMusic:
         return self._get_resource_relationship(album_id, 'albums', relationship, storefront=storefront, l=l,
                                                limit=limit, offset=offset)
 
+    def album_relationship_view(self, album_id, relationship_view, storefront='us', l=None, limit=None, offset=None):
+        """
+        Get an Album's relationship (e.g. list of tracks, or list of artists)
+
+        :param album_id: Album ID
+        :param relationship_view: Relationship view type (e.g. "related-albums")
+        :param storefront: Apple Music store front
+        :param l: The localization to use, specified by a language tag. Check API documentation.
+        :param limit: The maximum amount of items to return
+        :param offset: The index of the first item returned
+
+        :return: A List of relationship view data in JSON format
+        """
+        return self._get_resource_relationship_view(album_id, 'albums', relationship_view, storefront=storefront, l=l,
+                                                    limit=limit, offset=offset)
+
     def albums(self, album_ids, storefront='us', l=None, include=None):
         """
         Get all catalog album data associated with the IDs provided
@@ -286,6 +317,23 @@ class AppleMusic:
         """
         return self._get_resource_relationship(music_video_id, 'music-videos', relationship,
                                                storefront=storefront, l=l, limit=limit, offset=offset)
+
+    def music_video_relationship_view(self, music_video_id, relationship_view,
+                                      storefront='us', l=None, limit=None, offset=None):
+        """
+        Get a Music Videos's relationship view(e.g. list of artists)
+
+        :param music_video_id: Music Video ID
+        :param relationship_view: Relationship view type (e.g. "more-by-artist")
+        :param storefront: Apple Music store front
+        :param l: The localization to use, specified by a language tag. Check API documentation.
+        :param limit: The maximum amount of items to return
+        :param offset: The index of the first item returned
+
+        :return: A List of relationship view data in JSON format
+        """
+        return self._get_resource_relationship_view(music_video_id, 'music-videos', relationship_view,
+                                                    storefront=storefront, l=l, limit=limit, offset=offset)
 
     def music_videos(self, music_video_ids, storefront='us', l=None, include=None):
         """
@@ -344,6 +392,22 @@ class AppleMusic:
         """
         return self._get_resource_relationship(playlist_id, 'playlists', relationship, storefront=storefront,
                                                l=l, limit=limit, offset=offset)
+
+    def playlist_relationship_view(self, playlist_id, relationship_view, storefront='us', l=None, limit=None, offset=None):
+        """
+        Get a Playlists's relationship view(e.g. list of tracks)
+
+        :param playlist_id: Playlist ID
+        :param relationship: Relationship view type (e.g. "featured-artists")
+        :param storefront: Apple Music store front
+        :param l: The localization to use, specified by a language tag. Check API documentation.
+        :param limit: The maximum amount of items to return
+        :param offset: The index of the first item returned
+
+        :return: A List of relationship view data in JSON format
+        """
+        return self._get_resource_relationship_view(playlist_id, 'playlists', relationship_view, storefront=storefront,
+                                                    l=l, limit=limit, offset=offset)
 
     def playlists(self, playlist_ids, storefront='us', l=None, include=None):
         """
@@ -444,6 +508,22 @@ class AppleMusic:
         """
         return self._get_resource_relationship(artist_id, 'artists', relationship, storefront=storefront,
                                                l=l, limit=limit, offset=offset)
+
+    def artist_relationship_view(self, artist_id, relationship_view, storefront='us', l=None, limit=None, offset=None):
+        """
+        Get a Artist's relationship (e.g. song)
+
+        :param artist_id: Artist ID
+        :param relationship_view: Relationship view type (e.g. "top-songs")
+        :param storefront: Apple Music store front
+        :param l: The localization to use, specified by a language tag. Check API documentation.
+        :param limit: The maximum amount of items to return
+        :param offset: The index of the first item returned
+
+        :return: A List of relationship data in JSON format
+        """
+        return self._get_resource_relationship_view(artist_id, 'artists', relationship_view, storefront=storefront,
+                                                    l=l, limit=limit, offset=offset)
 
     def artists(self, artist_ids, storefront='us', l=None, include=None):
         """
